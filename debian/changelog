@@ -1,0 +1,29 @@
+httpts (1.0.4.1kord) juniper2; urgency=medium
+
+  * exec `timedatectl set-ntp false` before sync time
+
+ -- momo <wanghanmo@kylinos.cn>  Tue, 07 Aug 2018 10:55:51 +0800
+
+httpts (1.0.3kord) juniper2; urgency=medium
+
+  * add build GO version >= 1.10
+
+ -- momo <wanghanmo@kylinos.cn>  Fri, 27 Jul 2018 17:39:51 +0800
+
+httpts (1.0.2kord) juniper2; urgency=medium
+
+  * add GOPATH env
+
+ -- momo <wanghanmo@kylinos.cn>  Tue, 24 Jul 2018 15:05:51 +0800
+
+httpts (1.0.1kord) juniper2; urgency=medium
+
+  * change depend package
+
+ -- momo <wanghanmo@kylinos.cn>  Tue, 24 Jul 2018 14:41:51 +0800
+
+httpts (1.0kord) juniper2; urgency=medium
+
+  * init release
+
+ -- momo <wanghanmo@kylinos.cn>  Tue, 24 Jul 2018 13:12:51 +0800

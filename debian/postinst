@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# see: dh_installdeb(1)
+
+#set -e
+timedatectl set-ntp false
+if [ -f /lib/systemd/system/httpts.service ];then
+systemctl enable httpts.service
+systemctl daemon-reload
+fi

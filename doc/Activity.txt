@@ -1,0 +1,29 @@
+@startuml
+(*) -->"GET HTTP DATE"
+
+
+if "timeout?" then
+->[true] "check local time"
+else
+  ->[false] if "lower than minTime?" then
+    -->[false] "sync time"
+    --> if "over threshold?" then
+          ->[true] "send reboot signal"
+          -->(*)
+        else
+          ->[false] "send success signal"
+          -->(*)
+        endif
+  else
+    ->[true] "check local time"
+    --> if "lower than minTime?" then
+        -> [true] "set minTime"
+        --> "send reboot signal"
+        else
+    --> [false]"send error signal"
+    endif
+    -->(*)
+    endif
+endif
+
+@enduml
