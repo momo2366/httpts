@@ -38,6 +38,10 @@ const intro = `
 			<arg direction="in" type="s"/>
             <arg direction="out" type="i"/>
         </method>
+		<method name="SetTime">
+			<arg direction="in" type="s"/>
+            <arg direction="out" type="i"/>
+        </method>
 		<signal name="SyncRes">
 			<arg type="i" name="res" direction="out"/>
 		</signal>
@@ -137,6 +141,7 @@ func fetchTime(proxyUrl string, targetUrl string) (parsed time.Time, err error) 
 
 	// parse date
 	dateHeader := resp.Header.Get("Date")
+	log.Printf("GET dateHeader %s\n", dateHeader)
 	parsed, err = time.Parse("Mon, 02 Jan 2006 15:04:05 MST", dateHeader)
 	if err != nil {
 		return
@@ -199,28 +204,15 @@ func start_sync() {
 		log.Printf("Remote offset from system clock: %v", offset)
 
 		if !skipSet {
-			//use command : date -s
-			// cmd := exec.Command("date","-s",fetched.Format("2006-01-02 15:04:05 UTC"))
-			// log.Printf("date -s %s",fetched.Format("2006-01-02 15:04:05 UTC"))
+
 
 			//use command : timedatectl set-time
 			cmd := exec.Command("timedatectl", "set-ntp", "false") //disable ntp
 			err := cmd.Run()
-			cmd = exec.Command("bash", "-c", "timedatectl "+"set-time "+fetched.Format("'2006-01-02 15:04:05 UTC'"))
-			log.Printf("timedatectl set-time %s", fetched.Format("'2006-01-02 15:04:05 UTC'"))
+			cmd = exec.Command("bash", "-c", "timedatectl "+"set-time "+fetched.Format("'2006-01-02 15:04:05 MST'"))
+			log.Printf("timedatectl set-time %s", fetched.Format("'2006-01-02 15:04:05 MST'"))
 			err = cmd.Run() //set system clock
 
-			//use syscall : adjtimex
-			// ADJ_OFFSET :Since Linux 2.6.26, the supplied value is clamped to the range (-0.5s, +0.5s)
-			// state, err := syscall.Adjtimex(&syscall.Timex{
-			// 	Modes:  1, // ADJ_OFFSET = 1
-			// 	Offset: int64(offset / time.Microsecond),
-			// })
-			// if state != 0 {
-			// 	log.Printf("Return value of adjtime call is nonzero: %v", state)
-			// 	send_signal(1)
-			// 	return
-			// }
 
 			if err != nil {
 				log.Printf("Failed to set system clock: %v", err)
@@ -247,6 +239,23 @@ func start_sync() {
 	}
 
 }
+func set_time(targetTime time.Time) {
+	fmt.Println(targetTime)
+	cmd := exec.Command("timedatectl", "set-ntp", "false") //disable ntp
+	err := cmd.Run()
+	cmd = exec.Command("bash", "-c", "timedatectl "+"set-time "+targetTime.Format("'2006-01-02 15:04:05 MST'"))
+	log.Printf("timedatectl set-time %s", targetTime.Format("'2006-01-02 15:04:05 MST'"))
+	err = cmd.Run() //set system clock
+
+	if err != nil {
+		log.Printf("Failed to set system clock: %v", err)
+		send_signal(1)
+		return
+	} else {
+		send_signal(0)
+		return
+	}
+}
 
 type dbus_server struct {
 }
@@ -258,9 +267,28 @@ func (s dbus_server) SyncTime(tarurl string) (int, *dbus.Error) {
 	return 0, nil
 }
 
+func (s dbus_server) SetTime(tartime string) (int, *dbus.Error) {
+	fmt.Printf("try to set %s\n", tartime + " CST")
+	targetTime, err := time.Parse("Mon, 02 Jan 2006 15:04:05 MST", tartime)
+	if err != nil {
+		targetTime, err = time.Parse("2006-01-02 15:04:05 MST", tartime + " CST")
+		if err != nil {
+			log.Printf("Failed to Parse %s: %v", tartime, err)
+			send_signal(1)
+		} else {
+			go set_time(targetTime)
+		}
+	} else {
+		go set_time(targetTime)
+	}
+
+	return 0, nil
+}
+
 func (s dbus_server) SyncRes(res int) (int, *dbus.Error) {
 	return res, nil
 }
+
 
 func main() {
 

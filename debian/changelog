@@ -1,3 +1,9 @@
+httpts (1.0.5kord) juniper2; urgency=medium
+
+  * add SetTime func
+
+ -- momo <wanghanmo@kylinos.cn>  Thu, 18 Oct 2018 16:20:51 +0800
+
 httpts (1.0.4.1kord) juniper2; urgency=medium
 
   * exec `timedatectl set-ntp false` before sync time
