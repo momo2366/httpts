@@ -1,3 +1,0 @@
-com.kylin.SelfService.conf etc/dbus-1/system.d/
-httpts.service  lib/systemd/system/
-httpts usr/bin/

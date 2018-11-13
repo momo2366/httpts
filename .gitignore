@@ -1,4 +1,6 @@
 httpts
+debian/
+.bzr/
 # Binaries for programs and plugins
 *.exe
 *.exe~

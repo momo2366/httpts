@@ -2,7 +2,6 @@
 Description=restart when killed
 Wants=network-online.target
 After=network.target dbus.service
-Before=lightdm.service 
 
 [Service]
 Type=simple
